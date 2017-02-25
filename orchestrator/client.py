@@ -1,16 +1,22 @@
-from .broker import RedisBroker
-
-from .task import Task
 import functools
+import logging
+from traceback import print_exc
+
+from .broker import RedisBroker
+from .task import Task
+
 
 
 class Client():
-    def __init__(self):
-        self.broker = RedisBroker()
-        # self.register = TaskRegister()
+    """ Client is the main 'user' interface to the orchestrator, allowing users to register
+    tasks and connect to a broker to manage them """
+    def __init__(self, broker):
+        self.broker = broker
         self.functions = {}
 
     def task(self, f):
+        """ This decorator turns a function into a task. When the function is called, instead
+        of being run, a Task object representing that function is returned """
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             return Task(f.__name__, args, kwargs, app=self)
@@ -19,7 +25,12 @@ class Client():
         return wrapper
 
     def run_task(self, task):
-        return self.functions[task.funcname](*task.args, **task.kwargs)
+        try:
+            return self.functions[task.funcname](*task.args, **task.kwargs)
+        except Exception as e:
+            logging.exception("Error in task {}".format(task))
+            # print_exc()
+            return e
 
     def add(self, task):
         self.broker.add_to_scheduler(task)
