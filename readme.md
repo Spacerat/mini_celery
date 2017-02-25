@@ -42,3 +42,7 @@ If a task throws an exception, any child tasks will simply get that exception as
 
 That's basically everything!
 
+
+## Omissions
+
+The redis broker never deletes any finished tasks (or any data at all!). Maybe I'll add that some time.
