@@ -36,6 +36,7 @@ class Task():
         """ Run this task at a time """
         self.app.broker.add_to_scheduler(self)
         self.app.broker.schedule_at_time(self, datetime)
+        return self
 
     def wait(self, time):
         """ Run this task after a number of seconds """
